@@ -133,6 +133,7 @@ def standardize_depth_map(img, mask_valid=None, trunc_value=0.1):
 def save_outputs(img_path, output_file_name):
     with torch.no_grad():
         save_path = os.path.join(args.output_path, f'{output_file_name}_{args.task}.png')
+        os.system(f'mkdir -p {os.path.dirname(save_path)}')
 
         print(f'Reading input {img_path} ...')
         img = Image.open(img_path)
@@ -165,12 +166,26 @@ def save_outputs(img_path, output_file_name):
         print(f'Writing output {save_path} ...')
 
 
-img_path = Path(args.img_path)
-if img_path.is_file():
-    save_outputs(args.img_path, os.path.splitext(os.path.basename(args.img_path))[0])
-elif img_path.is_dir():
-    for f in glob.glob(args.img_path+'/*'):
-        save_outputs(f, os.path.splitext(os.path.basename(f))[0])
-else:
-    print("invalid file path!")
-    sys.exit()
+
+
+def main(img_path, output_filename):
+    img_entry = Path(img_path)
+    if img_entry.is_file():
+        save_outputs(img_path, output_filename + os.path.splitext(os.path.basename(img_path))[0])
+    elif img_entry.is_dir():
+        for f in os.listdir(img_path):
+            main(os.path.join(img_path, f), output_filename + img_path.split('/')[-1] + '/')
+    else:
+        print("invalid file path!")
+        sys.exit()
+main(args.img_path, '')
+# img_path = Path(args.img_path)
+# if img_path.is_file():
+    # save_outputs(args.img_path, os.path.splitext(os.path.basename(args.img_path))[0])
+# elif img_path.is_dir():
+    # for f in glob.glob(args.img_path+'/*'):
+        # import ipdb; ipdb.set_trace()
+        # save_outputs(f, os.path.splitext(os.path.basename(f))[0])
+# else:
+    # print("invalid file path!")
+    # sys.exit()
